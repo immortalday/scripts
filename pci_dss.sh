@@ -5,6 +5,19 @@
 # Description: set PCI DSS parameters for RHEL 5.x / 6.x / 7.4 (only)
 #
 
+# rel_host - hostname for relayhost postfix
+# rel_ip   - ip for relayhost postfix
+# dom_ip   - domain ip for resolv
+# dom_fqdn - FQDN domain name
+
+rel_host="example.mail.com"
+rel_ip="1.1.1.1"
+dom_fqdn="example.com"
+dom_ip="2.2.2.2"
+
+##
+
+
 UNIXTIME=`date +%s`
 
 if [ "X`grep '5\.' /etc/redhat-release`" != "X" ]; then
@@ -944,20 +957,29 @@ if [ "$VERSION" = "74" ]; then
 	cp -p /etc/hosts /etc/hosts.old$UNIXTIME
 	cp -p /etc/postfix/main.cf /etc/postfix/main.cf.old$UNIXTIME
 
-	if [ "X`grep srv-mail-01 /etc/hosts`" = "X" ]; then
-		echo "10.128.33.152	srv-mail-01" >>/etc/hosts
+	if [ "X`grep $rel_host /etc/hosts`" = "X" ]; then
+		echo "$rel_ip	$rel_host" >>/etc/hosts
 	fi
 
-	if [ "X`grep -w akbars.ru /etc/hosts`" = "X" ]; then
-		echo "10.128.33.140	akbars.ru" >>/etc/hosts
+	if [ "X`grep -w $dom_fqdn /etc/hosts`" = "X" ]; then
+		echo "$dom_ip	$dom_fqdn" >>/etc/hosts
 	fi
 
 	postfix_cfile="/etc/postfix/main.cf"
-	rel_host="srv-mail-01"
 
 	grep -q "#relayhost[[:space:]]=[[:space:]]\[an.ip.add.ress\]" $postfix_cfile
 	if [[ $? -eq $SUCCESS ]]; then
 		sed -i -e "s/#relayhost[[:space:]]=[[:space:]]\[an.ip.add.ress\]/relayhost = "$rel_host"/" $postfix_cfile
+	fi
+
+	grep -xPq "^relayhost[[:space:]]=[[:space:]]$rel_host" $postfix_cfile
+	if [[ $? -ne $SUCCESS ]]; then
+		qr=`cat $postfix_cfile | grep ^relayhost`
+		if [[ "$qr" = "relayhost = $rel_host" ]];then
+			echo
+		else
+			sed -i -e "s/$qr/relayhost = "$rel_host"/" $postfix_cfile
+		fi
 	fi
 
 	echo
