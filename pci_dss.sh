@@ -777,3 +777,27 @@ echo
 echo "DONE."
 
 fi
+
+if [ "$VERSION" = "74" ]; then
+
+	echo
+	echo "Configure mail system"
+
+	if [ "X`grep srv-mail-01 /etc/hosts`" = "X" ]; then
+		echo "10.128.33.152	srv-mail-01" >>/etc/hosts
+	fi
+
+	if [ "X`grep -w akbars.ru /etc/hosts`" = "X" ]; then
+		echo "10.128.33.140	akbars.ru" >>/etc/hosts
+	fi
+
+	postfix_cfile="/etc/postfix/main.cf"
+	rel_host="srv-mail-01"
+
+	grep -q "#relayhost[[:space:]]=[[:space:]]\[an.ip.add.ress\]" $postfix_cfile
+	if [[ $? -eq $SUCCESS ]]; then
+		sed -i -e "s/#relayhost[[:space:]]=[[:space:]]\[an.ip.add.ress\]/relayhost = "$rel_host"/" $postfix_cfile
+	fi
+
+fi
+
