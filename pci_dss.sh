@@ -708,12 +708,39 @@ service $SYSLOG restart
 
 fi
 
-# for RHEL 7,4
+# for RHEL 7.4
 
-#if [ "$VERSION" = "74" ]; then
-#
-#
-#fi
+if [ "$VERSION" = "74" ]; then
+
+	rslog_c="/etc/rsyslog.conf"
+	lg_host="/etc/rsyslog.d/loghost.conf"
+
+	grep -q "*.info;mail.none;authpriv.none;cron.none;user.none" $rslog_c
+	if [[ $? -ne $SUCCESS ]]; then
+		sed -i -e "s/*.info;mail.none;authpriv.none;cron.none/*.info;mail.none;authpriv.none;cron.none;user.none/" $rslog_c
+	fi
+
+	grep -q "user.*[[:space:]]*/var/log/audit_sys.log" $rslog_c
+	if [[ $? -ne $SUCCESS ]]; then
+		echo "Add user logs"
+		sed  -i -e "/local7.*/a # User logs" $rslog_c
+		sed  -i -e "/# User logs/a user.*\t\t\t\t\t\t\t/var/log/audit_sys.log" $rslog_c
+		sed  -i -e "/local7.*/{G;}" $rslog_c
+	fi
+
+	grep -q "#*.* @@remote-host:[0-9]*" $rslog_c
+	if [[ $? -eq $SUCCESS ]]; then
+		echo "Set LogHost"
+		if [ ! -f $lg_host ]; then
+			echo "*.* @10.128.31.19" > $lg_host
+		else
+			echo "LogHost already set on $lg_host file"
+		fi
+	fi
+
+	/bin/systemctl restart rsyslog.service
+
+fi
 
 # =====================================================================
 # Configure CRON
