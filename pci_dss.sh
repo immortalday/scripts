@@ -911,12 +911,12 @@ if [ "$VERSION" = "5" ] || [ "$VERSION" = "6" ] ; then
 echo
 echo "Configure mail system"
 
-if [ "X`grep srv-mail-01 /etc/hosts`" = "X" ]; then
-	echo "10.128.33.152	srv-mail-01" >>/etc/hosts
+if [ "X`grep $rel_host /etc/hosts`" = "X" ]; then
+		echo "$rel_ip	$rel_host" >>/etc/hosts
 fi
 
-if [ "X`grep -w akbars.ru /etc/hosts`" = "X" ]; then
-	echo "10.128.33.140	akbars.ru" >>/etc/hosts
+if [ "X`grep -w $dom_fqdn /etc/hosts`" = "X" ]; then
+		echo "$dom_ip	$dom_fqdn" >>/etc/hosts
 fi
 
 if [ "$VERSION" = "5" ]; then
@@ -932,7 +932,7 @@ elif [ "$VERSION" = "6" ]; then
 		cat /etc/postfix/main.cf.old$UNIXTIME | grep -v '^relayhost' >/etc/postfix/main.cf
 		ed /etc/postfix/main.cf <<END
 /^#relayhost =/i
-relayhost = srv-mail-01
+relayhost = $rel_host
 .
 w
 q
