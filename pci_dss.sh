@@ -473,6 +473,81 @@ fi
 
 # for RHEL 7.4
 
+if [ "$VERSION" = "74" ]; then
+
+SERVICES_CHCK="daytime-stream
+discard-dgram
+discard-stream
+echo-dgram
+echo-stream
+time-dgram
+time-stream
+tftp"
+
+SERVICES_SYSD="xinetd
+avahi-daemon
+cups
+dhcpd
+slapd
+nfs
+rpcbind
+named
+vsftpd
+httpd
+dovecot
+smb
+squid
+snmpd
+ypserv
+rsh.socket
+rlogin.socket
+rexec.socket
+telnet.socket
+tftp.socket
+rsyncd
+ntalk
+atd.service
+wpa_supplicant.service
+systemd-firstboot.service
+avahi-dnsconfd.service
+irqbalance.service
+kdump.service
+autofs.service
+mdmonitor.service
+multipathd.service
+bluetooth.service
+netfs.service
+portreserve.service
+saslauthd.service"
+
+# snapshot systemd service
+
+echo "take service snapshot"
+/bin/systemctl snapshot default-srv-state
+
+for s in $SERVICES_SYSD; do
+    echo "service $s"
+	systemctl is-enabled $s --quiet
+	if [[ $? -eq $SUCCESS ]]; then
+       		systemctl stop $s
+       		systemctl disable $s
+	fi
+	echo
+done
+
+[ ! -d /opt/sysscript ] && mkdir /opt/sysscript
+
+chkconfig --list >/opt/sysscript/oldstate.$UNIXTIME
+
+for s in $SERVICES_CHCK; do
+     echo "service $s"
+       	chkconfig $s off
+       	service $s stop
+	echo
+done
+
+fi
+
 # =====================================================================
 # Configure audit
 
