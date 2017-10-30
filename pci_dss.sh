@@ -2,7 +2,7 @@
 
 #
 #
-# Description: set PCI DSS parameters for RHEL 5.x / 6.x / 7.4
+# Description: set PCI DSS parameters for RHEL 5.x / 6.x / 7.4 (only)
 #
 
 UNIXTIME=`date +%s`
