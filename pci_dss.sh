@@ -599,6 +599,46 @@ service auditd restart
 
 fi
 
+# RHEL 7.4
+
+if [ "$VERSION" = "74" ]; then
+
+aur_f="/etc/audit/rules.d/audit.rules"
+
+grep -q "\-e[[:space:]]*[0-9]*" $aur_f
+if [[ $? -ne $SUCCESS ]]; then
+	sed  -i -e "/-f[[:space:]]*[0-9]*/a # enable auditd" $aur_f
+	sed  -i -e "/# enable auditd/a -e 1" $aur_f
+	sed  -i -e "/-e[[:space:]]*[0-9]*/{G;}" $aur_f
+fi
+
+grep -q "\-f[[:space:]]*2" $aur_f
+if [[ $? -ne $SUCCESS ]]; then
+	sed -i -e "s/-f[[:space:]]*[0-9]*/-f 2/" $aur_f
+fi
+
+grep -q "\-r[[:space:]]*[0-9]*" $aur_f
+if [[ $? -ne $SUCCESS ]]; then
+        sed  -i -e "/-e[[:space:]]*[0-9]*/a # limit rate" $aur_f
+        sed  -i -e "/# limit rate/a -r 0" $aur_f
+        sed  -i -e "/-e[[:space:]]*[0-9]*/{G;}" $aur_f
+fi
+
+
+grep -q "\-a exclude,always -F msgtype=CWD" $aur_f
+if [[ $? -ne $SUCCESS ]]; then
+	sed  -i -e "/-r[[:space:]]*[0-9]*/a # rule line" $aur_f
+	sed  -i "/# rule line/ a -a exclude,always -F msgtype=CWD \\
+-a always,exit -F euid=0 -F perm=wxa -k root_action \\
+-a exit,always -F dir=/etc/ -F perm=wa \\
+-a exit,always -F dir=/var/log/ -F perm=wa" $aur_f
+
+fi
+
+/sbin/service auditd restart
+
+fi
+
 # =====================================================================
 # Configure system log
 
