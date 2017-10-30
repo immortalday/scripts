@@ -201,6 +201,9 @@ if [ "$VERSION" = "74" ]; then
 
 	echo "Set password policy in /etc/pam.d/system-auth-ac for pwquality module"
 
+	cp -p /etc/pam.d/system-auth-ac /etc/pam.d/system-auth-ac.old$UNIXTIME
+	cp -p /etc/security/pwquality.conf /etc/security/pwquality.conf.old$UNIXTIME
+
 	pw_file=/etc/security/pwquality.conf
 	mln_s="minlen = 7"
 	mln_sd="# minlen = 9"
@@ -283,6 +286,8 @@ fi
 # sshd pam settings
 
 if [ "$VERSION" = "74" ]; then
+
+	cp -p /etc/pam.d/sshd /etc/pam.d/sshd.old$UNIXTIME
 
 	pam_sshd=/etc/pam.d/sshd
 	dn="deny=6"
@@ -399,6 +404,8 @@ fi
 # for RHEL 7.4
 
 if [ "$VERSION" = "74" ]; then
+
+	cp -p /etc/ssh/sshd_config /etc/ssh/sshd_config.old$UNIXTIME
 
 	fl_sshd="/etc/ssh/sshd_config"
 
@@ -573,7 +580,6 @@ if [ "X`diff /etc/audisp/plugins.d/syslog.conf /etc/audisp/plugins.d/syslog.conf
 	rm -f /etc/audisp/plugins.d/syslog.conf.old$UNIXTIME
 fi
 
-
 cp -p /etc/audit/auditd.conf /etc/audit/auditd.conf.old$UNIXTIME
 
 cat <<END >/etc/audit/auditd.conf
@@ -617,6 +623,9 @@ fi
 if [ "$VERSION" = "74" ]; then
 
 	# syslog plugin block
+
+	cp -p /etc/audisp/plugins.d/syslog.conf /etc/audisp/plugins.d/syslog.conf.old$UNIXTIME
+	cp -p /etc/audit/auditd.conf /etc/audit/auditd.conf.old$UNIXTIME
 
 	au_file="/etc/audisp/plugins.d/syslog.conf"
 
@@ -677,6 +686,8 @@ fi
 # RHEL 7.4
 
 if [ "$VERSION" = "74" ]; then
+
+cp -p /etc/audit/rules.d/audit.rules /etc/audit/rules.d/audit.rules.old$UNIXTIME
 
 aur_f="/etc/audit/rules.d/audit.rules"
 
@@ -771,9 +782,12 @@ fi
 
 if [ "$VERSION" = "74" ]; then
 
-fl_service="/etc/services"
+echo
+echo "Configure syslog port"
 
-#! check !
+cp -p /etc/services /etc/services.old$UNIXTIME
+
+fl_service="/etc/services"
 
 grep -q "syslog[[:space:]]*514/udp" $fl_service
 	if [[ $? -eq $SUCCESS ]]; then
@@ -826,6 +840,8 @@ fi
 # for RHEL 7.4
 
 if [ "$VERSION" = "74" ]; then
+
+	cp -p /etc/rsyslog.conf /etc/rsyslog.conf.old$UNIXTIME
 
 	rslog_c="/etc/rsyslog.conf"
 	lg_host="/etc/rsyslog.d/loghost.conf"
@@ -925,6 +941,9 @@ if [ "$VERSION" = "74" ]; then
 	echo
 	echo "Configure mail system"
 
+	cp -p /etc/hosts /etc/hosts.old$UNIXTIME
+	cp -p /etc/postfix/main.cf /etc/postfix/main.cf.old$UNIXTIME
+
 	if [ "X`grep srv-mail-01 /etc/hosts`" = "X" ]; then
 		echo "10.128.33.152	srv-mail-01" >>/etc/hosts
 	fi
@@ -941,5 +960,7 @@ if [ "$VERSION" = "74" ]; then
 		sed -i -e "s/#relayhost[[:space:]]=[[:space:]]\[an.ip.add.ress\]/relayhost = "$rel_host"/" $postfix_cfile
 	fi
 
-fi
+	echo
+	echo "DONE."
 
+fi
