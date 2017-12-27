@@ -226,7 +226,7 @@ if [ "$VERSION" = "74" ]; then
 	dcr_sd="# dcredit = 1"
 	rtr="retry=3"
 	rmbrsa="pam_unix.so sha512 shadow nullok"
-	rmbr="remeber=4"
+	rmbr="remember=4"
 
 	# uncommnet line minlen and replace deafult
 
