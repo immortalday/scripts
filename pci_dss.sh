@@ -921,7 +921,7 @@ fi
 
 if [ "$VERSION" = "5" ]; then
 	cp -p /etc/mail/sendmail.cf /etc/mail/sendmail.cf.old$UNIXTIME
-	cat /etc/mail/sendmail.cf.old$UNIXTIME | sed 's/^DS.*/DSsrv-mail-01/' >/etc/mail/sendmail.cf
+	cat /etc/mail/sendmail.cf.old$UNIXTIME | sed 's/^DS.*/DS srv-mail-01/' >/etc/mail/sendmail.cf
 	if [ "X`diff /etc/mail/sendmail.cf /etc/mail/sendmail.cf.old$UNIXTIME`" = "X" ]; then
 		rm -f /etc/mail/sendmail.cf.old$UNIXTIME
 	fi
